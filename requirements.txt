@@ -1,0 +1,12 @@
+# ---- Client-side test dependencies (run these on your laptop / one Spark) ----
+# The vLLM SERVER itself runs inside the official Docker image (vllm/vllm-openai:v0.23.0),
+# so you do NOT pip-install vllm here. These packages are only for the TEST CLIENTS.
+
+openai>=1.40.0          # OpenAI-compatible client -> talks to vLLM's /v1 endpoint
+httpx>=0.27.0           # raw HTTP calls (health, /metrics, completions)
+requests>=2.31.0
+transformers>=5.3.0     # tokenizer only, for token counting (matches model requirement)
+huggingface_hub>=0.26.0 # only if you download the model with python instead of CLI
+rich>=13.7.0            # pretty test output tables
+numpy>=1.26.0
+tabulate>=0.9.0
