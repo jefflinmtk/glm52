@@ -1,6 +1,6 @@
 
 cmd = """
-docker image inspect vllm-ray:v0.23.0 --format '{{.Architecture}}'
+sudo docker exec -it $(sudo docker ps --filter name=node- --format '{{.Names}}' | head -1) ray status
 """
 
 print(cmd)
