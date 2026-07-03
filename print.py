@@ -1,1 +1,1 @@
-print(" sudo rsync -ah --info=progress2 ~/.cache/huggingface/ /srv/hf/")
+print(" sudo apt update && sudo apt install -y nfs-kernel-server")
