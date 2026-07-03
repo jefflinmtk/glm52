@@ -11,7 +11,7 @@ set -euo pipefail
 HEAD_NODE_IP="10.248.13.123"           # <-- the HEAD node's IP (same on all workers)
 THIS_NODE_IP="10.248.13.22"            # <-- THIS worker's own IP (unique per node!)
 export HF_HOME="${HF_HOME:-/srv/hf}"   # <-- NFS shared path, same on all 6 nodes
-VLLM_IMAGE="vllm/vllm-openai:v0.23.0"
+VLLM_IMAGE="vllm-ray:v0.23.0"          # custom image = official v0.23.0 + ray (arm64)
 # ----------------------------------------------------------------------------
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -23,8 +23,12 @@ if [[ ! -f "$RC" ]]; then
   chmod +x "$RC"
 fi
 
-echo ">> Pulling image (first time only): $VLLM_IMAGE"
-docker pull "$VLLM_IMAGE"
+# Local custom image (built from Dockerfile.ray). Only pull if missing.
+if ! docker image inspect "$VLLM_IMAGE" >/dev/null 2>&1; then
+  echo ">> Image $VLLM_IMAGE not found locally."
+  echo "   Load it from NFS: docker load < /srv/hf/vllm-ray.tar.gz"
+  exit 1
+fi
 
 echo ">> Joining Ray cluster: head=$HEAD_NODE_IP  this=$THIS_NODE_IP"
 echo "   Leave this running. Detach screen with Ctrl-a d."
