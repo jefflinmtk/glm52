@@ -1,6 +1,6 @@
 
 cmd = """
-docker build -f Dockerfile.ray -t vllm-ray:v0.23.0 .
+docker run --rm --entrypoint bash vllm-ray:v0.23.0 -c "ray --version"
 """
 
 print(cmd)
