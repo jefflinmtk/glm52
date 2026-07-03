@@ -18,18 +18,18 @@ export HF_HOME="${HF_HOME:-/srv/hf}"   # <-- NFS shared path, same on all 6 node
 VLLM_IMAGE="vllm-ray:v0.23.0"          # custom image = official v0.23.0 + ray (arm64)
 # ----------------------------------------------------------------------------
 
-# vLLM ships run_cluster.sh in its repo. Fetch it if not present.
+# vLLM ships run_cluster.sh in its repo. Always fetch fresh, then patch it so
+# its internal `docker run` uses sudo (this environment needs sudo for docker).
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RC="$HERE/run_cluster.sh"
-if [[ ! -f "$RC" ]]; then
-  echo ">> Fetching run_cluster.sh from vLLM repo"
-  curl -fsSL -o "$RC" \
-    https://raw.githubusercontent.com/vllm-project/vllm/v0.11.0/examples/online_serving/run_cluster.sh
-  chmod +x "$RC"
-fi
+echo ">> Fetching run_cluster.sh from vLLM repo"
+curl -fsSL -o "$RC" \
+  https://raw.githubusercontent.com/vllm-project/vllm/v0.11.0/examples/online_serving/run_cluster.sh
+sed -i 's/\bdocker /sudo docker /g' "$RC"   # docker needs sudo here
+chmod +x "$RC"
 
 # Local custom image (built from Dockerfile.ray). Only pull if missing.
-if ! docker image inspect "$VLLM_IMAGE" >/dev/null 2>&1; then
+if ! sudo docker image inspect "$VLLM_IMAGE" >/dev/null 2>&1; then
   echo ">> Image $VLLM_IMAGE not found locally."
   echo "   Build it: docker build -f Dockerfile.ray -t $VLLM_IMAGE ."
   echo "   Or load from NFS: docker load < /srv/hf/vllm-ray.tar.gz"
