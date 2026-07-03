@@ -15,7 +15,7 @@ set -euo pipefail
 # ---- Config: EDIT THESE ----------------------------------------------------
 HEAD_NODE_IP="10.248.13.123"           # <-- this node's IP (the NFS server / head)
 export HF_HOME="${HF_HOME:-/srv/hf}"   # <-- NFS shared path, same on all 6 nodes
-VLLM_IMAGE="vllm/vllm-openai:v0.23.0"  # version required by the model card
+VLLM_IMAGE="vllm-ray:v0.23.0"          # custom image = official v0.23.0 + ray (arm64)
 # ----------------------------------------------------------------------------
 
 # vLLM ships run_cluster.sh in its repo. Fetch it if not present.
@@ -28,8 +28,13 @@ if [[ ! -f "$RC" ]]; then
   chmod +x "$RC"
 fi
 
-echo ">> Pulling image (first time only): $VLLM_IMAGE"
-docker pull "$VLLM_IMAGE"
+# Local custom image (built from Dockerfile.ray). Only pull if missing.
+if ! docker image inspect "$VLLM_IMAGE" >/dev/null 2>&1; then
+  echo ">> Image $VLLM_IMAGE not found locally."
+  echo "   Build it: docker build -f Dockerfile.ray -t $VLLM_IMAGE ."
+  echo "   Or load from NFS: docker load < /srv/hf/vllm-ray.tar.gz"
+  exit 1
+fi
 
 echo ">> Starting Ray HEAD on $HEAD_NODE_IP"
 echo "   Leave this running. Detach screen with Ctrl-a d."
