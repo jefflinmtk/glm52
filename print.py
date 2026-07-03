@@ -1,6 +1,4 @@
-# -*- coding: utf-8 -*-
 
-# 用三引號包住整段文字，Python 會保留裡面的換行與空格
-cmd = """docker run --rm --gpus all nvidia/cuda:12.6.0-base-ubuntu22.04 nvidia-smi"""
+cmd = """docker run --rm --entrypoint bash vllm/vllm-openai:v0.23.0 -c "python -c 'import ray; print(ray.__version__)'; pip show ray          2>/dev/null | head -3; ls /usr/local/bin | grep -i ray""""
 
 print(cmd)
