@@ -1,6 +1,6 @@
 
 cmd = """
-docker load < /srv/hf/vllm-ray.tar.gz
+docker image inspect vllm-ray:v0.23.0 --format '{{.Architecture}}'
 """
 
 print(cmd)
