@@ -1,1 +1,1 @@
-print(" docker run --rm --gpus all nvidia/cuda:12.6.0-base-ubuntu22.04 nvidia-smi")
+print(" sudo rsync -ah --info=progress2 ~/.cache/huggingface/ /srv/hf/")
