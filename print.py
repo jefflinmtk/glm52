@@ -1,1 +1,1 @@
-print("pip install -r requirements.txt")
+print(" docker run --rm --gpus all nvidia/cuda:12.6.0-base-ubuntu22.04 nvidia-smi")
