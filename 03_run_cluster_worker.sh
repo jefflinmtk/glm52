@@ -31,6 +31,12 @@ if ! sudo docker image inspect "$VLLM_IMAGE" >/dev/null 2>&1; then
   exit 1
 fi
 
+# Detect the NIC that owns this node's IP, so Gloo/NCCL bind to the real
+# 100GbE interface instead of loopback (fixes "connectFullMesh ... 127.0.0.1").
+IFACE="$(ip -o -4 addr show | awk -v ip="$THIS_NODE_IP" '$4 ~ ip"/" {print $2; exit}')"
+echo ">> Detected network interface for $THIS_NODE_IP: ${IFACE:-<none>}"
+[[ -z "$IFACE" ]] && { echo "ERROR: could not find NIC for $THIS_NODE_IP"; exit 1; }
+
 echo ">> Joining Ray cluster: head=$HEAD_NODE_IP  this=$THIS_NODE_IP"
 echo "   Leave this running. Detach screen with Ctrl-a d."
 bash "$RC" \
@@ -38,4 +44,6 @@ bash "$RC" \
     "$HEAD_NODE_IP" \
     --worker \
     "$HF_HOME" \
-    -e VLLM_HOST_IP="$THIS_NODE_IP"
+    -e VLLM_HOST_IP="$THIS_NODE_IP" \
+    -e GLOO_SOCKET_IFNAME="$IFACE" \
+    -e NCCL_SOCKET_IFNAME="$IFACE"
