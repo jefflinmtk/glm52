@@ -1,6 +1,6 @@
 
 cmd = """
-sudo docker rm -f $(sudo docker ps -aq --filter name=node-) 2>/dev/null; echo cleaned
+sed -i 's/THIS_NODE_IP="10.248.13.22"/THIS_NODE_IP="10.248.13.23"/' ~/glm52-spark/03_run_cluster_worker.sh
 """
 
 print(cmd)
