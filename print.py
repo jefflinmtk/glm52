@@ -1,6 +1,6 @@
 
 cmd = """
-sed -i 's/THIS_NODE_IP="10.248.13.22"/THIS_NODE_IP="10.248.13.23"/' ~/glm52-spark/03_run_cluster_worker.sh
+sudo docker exec -it $(sudo docker ps --filter name=node- --format '{{.Names}}' | head -1) ray status
 """
 
 print(cmd)
